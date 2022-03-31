@@ -1,3 +1,7 @@
+/*  
+    Utripanje treh led diod 
+    s frekvencami 2, 3 in 5Hz
+*/
 #include <Arduino.h>
 uint32_t cnt = 0;
 
