@@ -28,23 +28,17 @@ void loop() {
 
 void t_clk(void){
   digitalWrite(clk, HIGH);
-  delay(1);
   digitalWrite(clk, LOW);
-  delay(1);
 }
 
 void t_sclk(void){
   digitalWrite(sclk, HIGH);
-  delay(1);
   digitalWrite(sclk, LOW);
-  delay(1);
 }
 
 void t_lclk(void){
   digitalWrite(lclk, HIGH);
-  delay(1);
   digitalWrite(lclk, LOW);
-  delay(1);
 }
 
 void fill_shift_reg(byte left, byte right){
