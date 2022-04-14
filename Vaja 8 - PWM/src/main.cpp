@@ -30,6 +30,7 @@
 
 void setup()
 {
+  Serial.begin(9600);
   MyTim1->setMode(channel1, TIMER_OUTPUT_COMPARE_PWM1, 11);
   // MyTim->setPrescaleFactor(8); // Due to setOverflow with MICROSEC_FORMAT, prescaler will be computed automatically based on timer input clock
   MyTim1->setOverflow(10000, MICROSEC_FORMAT); // 100000 microseconds = 100 milliseconds
@@ -58,10 +59,20 @@ void setup()
 
 void loop()
 {
-  for(int n=0; n<100; n++){
-    MyTim1->setCaptureCompare(channel1, n, PERCENT_COMPARE_FORMAT);
-    // MyTim2->setCaptureCompare(channel2, 100-n, PERCENT_COMPARE_FORMAT);
-    // MyTim3->setCaptureCompare(channel3, 50, PERCENT_COMPARE_FORMAT);
-    delay(50);
+  uint32_t red, blue, green;
+  if(Serial.available()>4){
+    if(Serial.read()=='#'){
+      red = Serial.parseInt();
+      Serial.println(red);
+      green = Serial.parseInt();
+      Serial.println(green);
+      blue = Serial.parseInt();
+      Serial.println(blue);
+    }
+    MyTim1->setCaptureCompare(channel1, red, PERCENT_COMPARE_FORMAT);
+    MyTim2->setCaptureCompare(channel2, green, PERCENT_COMPARE_FORMAT);
+    MyTim3->setCaptureCompare(channel3, blue, PERCENT_COMPARE_FORMAT);
   }
+  delay(100);
+
 }
