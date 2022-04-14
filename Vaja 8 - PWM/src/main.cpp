@@ -33,7 +33,7 @@ void setup()
   MyTim1->setMode(channel1, TIMER_OUTPUT_COMPARE_PWM1, 11);
   // MyTim->setPrescaleFactor(8); // Due to setOverflow with MICROSEC_FORMAT, prescaler will be computed automatically based on timer input clock
   MyTim1->setOverflow(10000, MICROSEC_FORMAT); // 100000 microseconds = 100 milliseconds
-  MyTim1->setCaptureCompare(channel1, 80, PERCENT_COMPARE_FORMAT); // 50%
+  //MyTim1->setCaptureCompare(channel1, 80, PERCENT_COMPARE_FORMAT); // 50%
   //MyTim->attachInterrupt(Update_IT_callback);
   //MyTim->attachInterrupt(channel, Compare_IT_callback);
   MyTim1->resume();
@@ -41,7 +41,7 @@ void setup()
   MyTim2->setMode(channel2, TIMER_OUTPUT_COMPARE_PWM1, 10);
   // MyTim->setPrescaleFactor(8); // Due to setOverflow with MICROSEC_FORMAT, prescaler will be computed automatically based on timer input clock
   MyTim2->setOverflow(10000, MICROSEC_FORMAT); // 100000 microseconds = 100 milliseconds
-  MyTim2->setCaptureCompare(channel2, 80, PERCENT_COMPARE_FORMAT); // 50%
+  //MyTim2->setCaptureCompare(channel2, 80, PERCENT_COMPARE_FORMAT); // 50%
   //MyTim->attachInterrupt(Update_IT_callback);
   //MyTim->attachInterrupt(channel, Compare_IT_callback);
   MyTim2->resume();
@@ -49,7 +49,7 @@ void setup()
   MyTim3->setMode(channel3, TIMER_OUTPUT_COMPARE_PWM1, 9);
   // MyTim->setPrescaleFactor(8); // Due to setOverflow with MICROSEC_FORMAT, prescaler will be computed automatically based on timer input clock
   MyTim3->setOverflow(10000, MICROSEC_FORMAT); // 100000 microseconds = 100 milliseconds
-  MyTim3->setCaptureCompare(channel3, 80, PERCENT_COMPARE_FORMAT); // 50%
+  //MyTim3->setCaptureCompare(channel3, 80, PERCENT_COMPARE_FORMAT); // 50%
   //MyTim->attachInterrupt(Update_IT_callback);
   //MyTim->attachInterrupt(channel, Compare_IT_callback);
   MyTim3->resume();
@@ -60,8 +60,8 @@ void loop()
 {
   for(int n=0; n<100; n++){
     MyTim1->setCaptureCompare(channel1, n, PERCENT_COMPARE_FORMAT);
-    MyTim2->setCaptureCompare(channel2, 100-n, PERCENT_COMPARE_FORMAT);
-    MyTim3->setCaptureCompare(channel3, 50, PERCENT_COMPARE_FORMAT);
+    // MyTim2->setCaptureCompare(channel2, 100-n, PERCENT_COMPARE_FORMAT);
+    // MyTim3->setCaptureCompare(channel3, 50, PERCENT_COMPARE_FORMAT);
     delay(50);
   }
 }
