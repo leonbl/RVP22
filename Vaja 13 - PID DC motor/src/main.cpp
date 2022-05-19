@@ -11,7 +11,7 @@ void encoder(void);
 void prekinitev_pid(void);
 
 float Setpoint, Input, Output, u;
-float Kp = 2, Ki = 5, Kd = 1;
+float Kp = 5, Ki = 0, Kd = 0;
 int8_t u_map;
 
 static int32_t counter = 0;
@@ -51,18 +51,16 @@ void setup() {
 
   attachInterrupt(digitalPinToInterrupt(encA), encoder, RISING);
   Serial.begin(9600);
-
+  Setpoint = 5000;
   //apply PID gains
   myPID.SetTunings(Kp, Ki, Kd);
   //turn the PID on
   myPID.SetMode(myPID.Control::automatic);
-
-  Setpoint = 5000;
   myPID.SetOutputLimits(-100, 100);
 }
 
 void loop() {
-  Serial.print(u_map);
+  Serial.print(Output);
   Serial.print(" ");
   Serial.println(counter);
   delay(10);
