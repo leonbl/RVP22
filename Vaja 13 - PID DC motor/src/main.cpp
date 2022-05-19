@@ -7,6 +7,13 @@
 
 void motor(int8_t hitrost);
 void encoder(void);
+void prekinitev_pid(void);
+
+float error=0;
+float y, u;
+float r;
+float Kp=0.01;
+int8_t u_map;
 
 static int32_t counter = 0;
 
@@ -24,6 +31,12 @@ void setup() {
   pinMode(encA, INPUT);
   pinMode(encB, INPUT);
 
+  TIM_TypeDef *moj_tim = TIM3;
+  HardwareTimer *casovnik = new HardwareTimer(moj_tim);
+  casovnik->setOverflow(2, HERTZ_FORMAT);
+  casovnik->attachInterrupt(prekinitev_pid);
+  casovnik->resume();
+
   MyTim1->setMode(channel1, TIMER_OUTPUT_COMPARE_PWM1, pinAA);
   MyTim1->setOverflow(1000, MICROSEC_FORMAT); // 100000 microseconds = 100 milliseconds
   MyTim1->resume();
@@ -37,17 +50,15 @@ void setup() {
 
   attachInterrupt(digitalPinToInterrupt(encA), encoder, RISING);
   Serial.begin(9600);
-  motor(40);
+  motor(27);
+  r=1000.0;
 }
 
 void loop() {
-  // motor(100, 0);
-  // delay(5000);
-  // motor(100, 1);
-  if(counter>1000){
-    motor(0);
-  }
-  Serial.println(counter); 
+  Serial.print(u_map);
+  Serial.print(" ");
+  Serial.println(counter);
+  delay(100);
 }
 
 void motor(int8_t hitrost){
@@ -72,4 +83,15 @@ void encoder(void){
     counter++;
   else 
     counter--;
+}
+
+void prekinitev_pid(void){
+  y = (float)counter;
+  error = r - y;
+  u = Kp * error;
+  if(u>100) u=100;
+  if(u<-100) u=-100;
+  if(u>0) u_map = map(u, 0, 100, 27, 100 );
+  if(u<0) u_map = map(u, 0, -100, -27, -100 );
+  motor((int8_t)u_map);
 }
