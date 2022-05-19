@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include "QuickPID.h"
 
 #define pinAA 4
 #define pinAB 5
@@ -9,13 +10,13 @@ void motor(int8_t hitrost);
 void encoder(void);
 void prekinitev_pid(void);
 
-float error=0;
-float y, u;
-float r;
-float Kp=0.1;
+float Setpoint, Input, Output, u;
+float Kp = 2, Ki = 5, Kd = 1;
 int8_t u_map;
 
 static int32_t counter = 0;
+
+QuickPID myPID(&Input, &Output, &Setpoint);
 
 TIM_TypeDef *Instance1 = (TIM_TypeDef *)pinmap_peripheral(digitalPinToPinName(pinAA), PinMap_PWM);
 uint32_t channel1 = STM_PIN_CHANNEL(pinmap_function(digitalPinToPinName(pinAA), PinMap_PWM));
@@ -50,15 +51,21 @@ void setup() {
 
   attachInterrupt(digitalPinToInterrupt(encA), encoder, RISING);
   Serial.begin(9600);
-  motor(27);
-  r=1000.0;
+
+  //apply PID gains
+  myPID.SetTunings(Kp, Ki, Kd);
+  //turn the PID on
+  myPID.SetMode(myPID.Control::automatic);
+
+  Setpoint = 5000;
+  myPID.SetOutputLimits(-100, 100);
 }
 
 void loop() {
   Serial.print(u_map);
   Serial.print(" ");
   Serial.println(counter);
-  delay(100);
+  delay(10);
 }
 
 void motor(int8_t hitrost){
@@ -86,12 +93,10 @@ void encoder(void){
 }
 
 void prekinitev_pid(void){
-  y = (float)counter;
-  error = r - y;
-  u = Kp * error;
-  if(u>100) u=100;
-  if(u<-100) u=-100;
-  if(u>0) u_map = map(u, 0, 100, 27, 100 );
-  if(u<0) u_map = map(u, 0, -100, -50, -100 );
-  motor((int8_t)u_map);
+    Input = counter;
+    myPID.Compute();
+    u = Output;
+    if(u>0) u_map = map(u, 0, 100, 27, 100 );
+    if(u<0) u_map = map(u, 0, -100, -50, -100 );
+    motor((int8_t)u_map);
 }
