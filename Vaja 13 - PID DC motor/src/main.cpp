@@ -12,7 +12,7 @@ void prekinitev_pid(void);
 float error=0;
 float y, u;
 float r;
-float Kp=0.01;
+float Kp=0.1;
 int8_t u_map;
 
 static int32_t counter = 0;
@@ -33,16 +33,16 @@ void setup() {
 
   TIM_TypeDef *moj_tim = TIM3;
   HardwareTimer *casovnik = new HardwareTimer(moj_tim);
-  casovnik->setOverflow(2, HERTZ_FORMAT);
+  casovnik->setOverflow(1000, HERTZ_FORMAT);
   casovnik->attachInterrupt(prekinitev_pid);
   casovnik->resume();
 
   MyTim1->setMode(channel1, TIMER_OUTPUT_COMPARE_PWM1, pinAA);
-  MyTim1->setOverflow(1000, MICROSEC_FORMAT); // 100000 microseconds = 100 milliseconds
+  MyTim1->setOverflow(500, MICROSEC_FORMAT); // 100000 microseconds = 100 milliseconds
   MyTim1->resume();
 
   MyTim2->setMode(channel2, TIMER_OUTPUT_COMPARE_PWM1, pinAB);
-  MyTim2->setOverflow(1000, MICROSEC_FORMAT); // 100000 microseconds = 100 milliseconds
+  MyTim2->setOverflow(500, MICROSEC_FORMAT); // 100000 microseconds = 100 milliseconds
   MyTim2->resume();
 
   MyTim1->setCaptureCompare(channel1, 0, PERCENT_COMPARE_FORMAT);
@@ -68,12 +68,12 @@ void motor(int8_t hitrost){
   }
   else{
     if(hitrost < 0){
-      MyTim1->setCaptureCompare(channel1, abs(hitrost), PERCENT_COMPARE_FORMAT);
       digitalWrite(pinAB, LOW);
+      MyTim1->setCaptureCompare(channel1, abs(hitrost), PERCENT_COMPARE_FORMAT);
     }
     else{
-      MyTim2->setCaptureCompare(channel2, hitrost, PERCENT_COMPARE_FORMAT);
       digitalWrite(pinAA, LOW);
+      MyTim2->setCaptureCompare(channel2, hitrost, PERCENT_COMPARE_FORMAT);
     }
   }
 }
@@ -92,6 +92,6 @@ void prekinitev_pid(void){
   if(u>100) u=100;
   if(u<-100) u=-100;
   if(u>0) u_map = map(u, 0, 100, 27, 100 );
-  if(u<0) u_map = map(u, 0, -100, -27, -100 );
+  if(u<0) u_map = map(u, 0, -100, -50, -100 );
   motor((int8_t)u_map);
 }
