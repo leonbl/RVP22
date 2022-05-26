@@ -9,13 +9,14 @@ void motor(int8_t hitrost);
 void encoder(void);
 void prekinitev_pid(void);
 
-float error=0;
-float y, u;
-float r;
-float Kp=0.1;
+float error=0, eSum=0;
+float y, u, up=0, ui=0, ud=0;
+float r, Period;
+float Kp=10, Ki=10;
 int8_t u_map;
 
 static int32_t counter = 0;
+volatile bool calcPID = false;
 
 TIM_TypeDef *Instance1 = (TIM_TypeDef *)pinmap_peripheral(digitalPinToPinName(pinAA), PinMap_PWM);
 uint32_t channel1 = STM_PIN_CHANNEL(pinmap_function(digitalPinToPinName(pinAA), PinMap_PWM));
@@ -31,18 +32,20 @@ void setup() {
   pinMode(encA, INPUT);
   pinMode(encB, INPUT);
 
+  uint32_t peri = 1000;
   TIM_TypeDef *moj_tim = TIM3;
   HardwareTimer *casovnik = new HardwareTimer(moj_tim);
-  casovnik->setOverflow(1000, MICROSEC_FORMAT);
+  casovnik->setOverflow(peri, MICROSEC_FORMAT);
   casovnik->attachInterrupt(prekinitev_pid);
   casovnik->resume();
+  Period = peri/1000000.0;
 
   MyTim1->setMode(channel1, TIMER_OUTPUT_COMPARE_PWM1, pinAA);
-  MyTim1->setOverflow(800, MICROSEC_FORMAT); // 100000 microseconds = 100 milliseconds
+  MyTim1->setOverflow(10000, MICROSEC_FORMAT); // 100000 microseconds = 100 milliseconds
   MyTim1->resume();
 
   MyTim2->setMode(channel2, TIMER_OUTPUT_COMPARE_PWM1, pinAB);
-  MyTim2->setOverflow(800, MICROSEC_FORMAT); // 100000 microseconds = 100 milliseconds
+  MyTim2->setOverflow(10000, MICROSEC_FORMAT); // 100000 microseconds = 100 milliseconds
   MyTim2->resume();
 
   MyTim1->setCaptureCompare(channel1, 0, PERCENT_COMPARE_FORMAT);
@@ -55,10 +58,27 @@ void setup() {
 }
 
 void loop() {
-  Serial.print(u_map);
-  Serial.print(" ");
-  Serial.println(counter);
-  delay(100);
+  if(calcPID == true){  
+    y = counter;
+
+    // P
+    error = r - y;
+    up = Kp * error;
+    // I
+    eSum += error;
+    ui = eSum * Ki * Period;
+
+    u = up + ui + ud;
+    if(u>100) u=100;
+    if(u<-100) u=-100;
+    if(u>0) u_map = map(u, 0, 100, 20, 100 );
+    if(u<0) u_map = map(u, 0, -100, -20, -100 );
+    motor((int8_t)u_map);
+    Serial.print(u_map);
+    Serial.print(" ");
+    Serial.println(counter);
+    calcPID = false;
+  }
 }
 
 void motor(int8_t hitrost){
@@ -86,12 +106,5 @@ void encoder(void){
 }
 
 void prekinitev_pid(void){
-  y = (float)counter;
-  error = r - y;
-  u = Kp * error;
-  if(u>100) u=100;
-  if(u<-100) u=-100;
-  if(u>0) u_map = map(u, 0, 100, 30, 100 );
-  if(u<0) u_map = map(u, 0, -100, -50, -100 );
-  motor((int8_t)u_map);
-}
+  calcPID = true;
+} 
