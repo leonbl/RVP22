@@ -71,9 +71,9 @@ void os_getDevEui (u1_t* buf) { memcpy_P(buf, DEVEUI, 8);}
 static const u1_t PROGMEM APPKEY[16] = { 0x9C, 0x92, 0xFB, 0x98, 0xCB, 0xDE, 0xF5, 0x87, 0x5A, 0xF0, 0x26, 0x1C, 0x35, 0x9F, 0x51, 0x61 };
 void os_getDevKey (u1_t* buf) {  memcpy_P(buf, APPKEY, 16);}
 
-static uint8_t mydata[] = "Hello, world!";
+static uint8_t mydata[15];
 static osjob_t sendjob;
-
+static uint8_t count=0;
 // Schedule TX every this many seconds (might become longer due to duty
 // cycle limitations).
 const unsigned TX_INTERVAL = 60;
@@ -222,6 +222,8 @@ void do_send(osjob_t* j){
         Serial.println(F("OP_TXRXPEND, not sending"));
     } else {
         // Prepare upstream data transmission at the next possible time.
+        mydata[0]=random(0, 45);
+        mydata[1]=count++;
         LMIC_setTxData2(1, mydata, sizeof(mydata)-1, 0);
         Serial.println(F("Packet queued"));
     }
