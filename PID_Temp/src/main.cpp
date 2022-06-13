@@ -34,6 +34,8 @@ void loop() {
   up = Kp * e; 
 
   sumE += e * t;
+  if(sumE > 255) sumE = 255;
+  if(sumE < -255) sumE = -255;
   ui = Ki * sumE;
 
   ud = Kd * (e - epr)/t;
